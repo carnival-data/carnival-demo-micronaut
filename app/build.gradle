@@ -1,0 +1,68 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        mavenLocal()
+    }
+    dependencies {
+        classpath group:'org.carnival', name:'carnival-gradle', version:'2.1.1-SNAPSHOT'
+    }    
+}
+
+plugins {
+    id('groovy')
+    id("com.github.johnrengelman.shadow") version "7.1.1"
+    id("io.micronaut.application") version "3.2.1"
+    id('com.github.ManifestClasspath') version '0.1.0-RELEASE'
+}
+apply plugin: 'carnival.application'
+
+version = "0.1"
+group = "org.carnival"
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+dependencies {
+    implementation("io.micronaut:micronaut-http-client")
+    implementation("io.micronaut:micronaut-jackson-databind")
+    implementation("io.micronaut.groovy:micronaut-runtime-groovy")
+    implementation("jakarta.annotation:jakarta.annotation-api")
+    compileOnly("io.micronaut:micronaut-http-validation")
+    runtimeOnly("ch.qos.logback:logback-classic")
+    implementation("io.micronaut:micronaut-validation")
+}
+
+application {
+    mainClass = 'carnival.demo.micronaut.App'
+}
+java {
+    sourceCompatibility = JavaVersion.toVersion("11")
+    targetCompatibility = JavaVersion.toVersion("11")
+}
+
+graalvmNative.toolchainDetection = false
+micronaut {
+    runtime("netty")
+    testRuntime("spock2")
+    processing {
+        incremental(true)
+        annotations("carnival.demo.micronaut.*")
+    }
+}
+
+test {
+    testLogging {
+        outputs.upToDateWhen {false}
+        showStandardStreams = true
+    }
+}
+
+groovydoc {
+    classpath = sourceSets.main.runtimeClasspath + classpath
+}
+
+shadowJar {
+  zip64 true
+}
